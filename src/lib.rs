@@ -7,28 +7,32 @@ use std::thread;
 
 mod core;
 use self::core::basic::Childarea;
+use self::core::color::Color;
 use self::core::scene::Scene;
 
-pub fn render_child(child: &Childarea, scene: &Scene) -> (u32, RgbaImage) {
+pub fn render_child(child: &Childarea, scene: &Scene, sample: u32) -> (u32, RgbaImage) {
     let (w, h) = (child.w, child.h);
 
     println!("{}", child.start);
     let mut img = RgbaImage::new(w, h);
     for y in child.start..h + child.start {
         for x in 0..w {
-            let u = (x as f64) / (w as f64);
-            let v = (y as f64) / (child.par_h as f64);
+            let mut c = Color::new(0.0, 0.0, 0.0);
+            for _ in 0..sample {
+                let u = (x as f64 + rand::random::<f64>()) / (w as f64);
+                let v = (y as f64 + rand::random::<f64>()) / (child.par_h as f64);
 
-            let ray = scene.get_ray(u, v);
-            let col = scene.color(&ray);
-
-            img.put_pixel(x, y - child.start, col.to_rgba(1.0))
+                let ray = scene.get_ray(u, v);
+                c = c + scene.color(&ray);
+            }
+            c = c / (sample as f64);
+            img.put_pixel(x, y - child.start, c.to_rgba(1.0))
         }
     }
     (child.start, img)
 }
 
-pub fn render(w: u32, h: u32, thread: u32) -> RgbaImage {
+pub fn render(w: u32, h: u32, thread: u32, sample: u32) -> RgbaImage {
     let ch = ((h as f32) / (thread as f32)) as u32;
 
     let mut areas = vec![];
@@ -53,7 +57,7 @@ pub fn render(w: u32, h: u32, thread: u32) -> RgbaImage {
     for t in 0..thread {
         let s = scene.clone();
         let area = areas[t as usize];
-        children.push(thread::spawn(move || render_child(&area, &s)));
+        children.push(thread::spawn(move || render_child(&area, &s, sample)));
     }
 
     let mut imgs: Vec<(u32, RgbaImage)> = vec![];

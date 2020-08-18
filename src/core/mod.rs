@@ -5,4 +5,5 @@ pub mod ray;
 pub mod scene;
 pub mod screen;
 pub mod shape_trait;
+pub mod shapelist;
 pub mod sphere;

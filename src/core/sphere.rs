@@ -11,7 +11,7 @@ pub struct Sphere {
 }
 
 impl HIT for Sphere {
-    fn hit(&self, r: &Ray, _t0: f64, _t1: f64) -> Option<HitRecord> {
+    fn hit(&self, r: &Ray, t0: f64, t1: f64) -> Option<HitRecord> {
         let oc = r.origin - self.center;
         let a = r.dir.dot(&r.dir);
         let b = 2.0 * r.dir.dot(&oc);
@@ -20,14 +20,15 @@ impl HIT for Sphere {
 
         if d > 0.0 {
             let tmp = (-b - d.sqrt()) / (2.0 * a);
-            let p = r.point_at_paramete(tmp);
-            Some(HitRecord {
-                t: tmp,
-                p: p,
-                n: (p - self.center).normalize(),
-            })
-        } else {
-            None
+            if t0 < tmp && tmp < t1 {
+                let p = r.point_at_paramete(tmp);
+                return Some(HitRecord {
+                    t: tmp,
+                    p: p,
+                    n: (p - self.center).normalize(),
+                });
+            }
         }
+        None
     }
 }

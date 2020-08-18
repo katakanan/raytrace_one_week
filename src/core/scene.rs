@@ -5,13 +5,14 @@ use super::color::Color;
 use super::ray::Ray;
 use super::screen::Screen;
 use super::shape_trait::HIT;
+use super::shapelist::ShapeList;
 use super::sphere::Sphere;
 
 #[derive(Debug, Clone)]
 pub struct Scene {
     pub screen: Screen,
     pub camera: Camera,
-    pub shapes: Sphere,
+    pub shapes: ShapeList,
 }
 
 impl Scene {
@@ -37,15 +38,24 @@ impl Scene {
             radius: 0.5,
         };
 
+        let floor = Sphere {
+            center: Point3::new(0.0, -100.5, -1.0),
+            radius: 100.0,
+        };
+
+        let mut shapes = ShapeList { v: vec![] };
+        shapes.v.push(sphere);
+        shapes.v.push(floor);
+
         Scene {
             screen,
             camera,
-            shapes: sphere,
+            shapes,
         }
     }
 
     pub fn color(&self, r: &Ray) -> Color {
-        match self.shapes.hit(&r, 0.0, 0.0) {
+        match self.shapes.hit(&r, 0.0000, std::f64::MAX) {
             Some(hr) => {
                 let c = (hr.n + Vector3::new(1.0, 1.0, 1.0)) * 0.5;
                 Color::new(c.x, c.y, c.z)
