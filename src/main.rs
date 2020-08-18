@@ -7,8 +7,9 @@ fn main() {
     println!("Hello World");
     let w = 200;
     let h = 100;
+    let thread = 16;
 
-    let _ = renderer::render(w, h)
+    let _ = renderer::render(w, h, thread)
         .save_with_format(std::path::Path::new("test.jpg"), ImageFormat::Jpeg)
         .unwrap();
 }
