@@ -1,7 +1,7 @@
 extern crate image;
 extern crate nalgebra as na;
 
-use image::{Rgba, RgbaImage};
+use image::RgbaImage;
 use std::sync::Arc;
 use std::thread;
 

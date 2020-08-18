@@ -10,6 +10,6 @@ fn main() {
     let thread = 1;
 
     let _ = renderer::render(w, h, thread)
-        .save_with_format(std::path::Path::new("test.jpg"), ImageFormat::Jpeg)
+        .save_with_format(std::path::Path::new("test.png"), ImageFormat::Png)
         .unwrap();
 }

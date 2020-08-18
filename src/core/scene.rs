@@ -4,11 +4,14 @@ use super::camera::Camera;
 use super::color::Color;
 use super::ray::Ray;
 use super::screen::Screen;
+use super::shape_trait::HIT;
+use super::sphere::Sphere;
 
 #[derive(Debug, Clone)]
 pub struct Scene {
     pub screen: Screen,
     pub camera: Camera,
+    pub shapes: Sphere,
 }
 
 impl Scene {
@@ -29,13 +32,27 @@ impl Scene {
             pos: Point3::origin(),
         };
 
-        Scene { screen, camera }
+        let sphere = Sphere {
+            center: Point3::new(0.0, 0.0, -1.0),
+            radius: 0.5,
+        };
+
+        Scene {
+            screen,
+            camera,
+            shapes: sphere,
+        }
     }
 
     pub fn color(&self, r: &Ray) -> Color {
-        let unit_direction = r.dir / r.dir.norm();
-        let t = 0.5 * (-unit_direction.y + 1.0);
-        Color::new(1.0, 1.0, 1.0) * (1.0 - t) + Color::new(0.5, 0.7, 1.0) * t
+        match self.shapes.hit(&r, 0.0, 0.0) {
+            Some(_) => Color::new(1.0, 0.0, 0.0),
+            None => {
+                let unit_direction = r.dir / r.dir.norm();
+                let t = 0.5 * (-unit_direction.y + 1.0);
+                Color::new(1.0, 1.0, 1.0) * (1.0 - t) + Color::new(0.5, 0.7, 1.0) * t
+            }
+        }
     }
 
     pub fn get_ray(&self, u: f64, v: f64) -> Ray {
