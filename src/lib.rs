@@ -1,30 +1,28 @@
 extern crate image;
+extern crate nalgebra as na;
 
 use image::{Rgba, RgbaImage};
+use std::sync::Arc;
 use std::thread;
 
 mod core;
 use self::core::basic::Childarea;
+use self::core::scene::Scene;
 
-pub fn render_child(child: &Childarea) -> (u32, RgbaImage) {
+pub fn render_child(child: &Childarea, scene: &Scene) -> (u32, RgbaImage) {
     let (w, h) = (child.w, child.h);
 
     println!("{}", child.start);
     let mut img = RgbaImage::new(w, h);
     for y in child.start..h + child.start {
         for x in 0..w {
-            let ny = y;
-            let nx = x;
+            let u = (x as f64) / (w as f64);
+            let v = ((child.par_h - y - 1) as f64) / (child.par_h as f64);
 
-            let r = (nx as f64) / (w as f64);
-            let g = (ny as f64) / (child.par_h as f64);
-            let b = 0.2;
+            let ray = scene.get_ray(u, v);
+            let col = scene.color(&ray);
 
-            let ir = (255.99 * r) as u8;
-            let ig = (255.99 * g) as u8;
-            let ib = (255.99 * b) as u8;
-
-            img.put_pixel(x, y - child.start, Rgba([ir, ig, ib, 255]))
+            img.put_pixel(x, y - child.start, col.to_rgba(1.0))
         }
     }
     (child.start, img)
@@ -49,11 +47,13 @@ pub fn render(w: u32, h: u32, thread: u32) -> RgbaImage {
         });
     }
 
+    let scene = Arc::new(Scene::new(w, h));
     let mut children = vec![];
 
     for t in 0..thread {
+        let s = scene.clone();
         let area = areas[t as usize];
-        children.push(thread::spawn(move || render_child(&area)));
+        children.push(thread::spawn(move || render_child(&area, &s)));
     }
 
     let mut imgs: Vec<(u32, RgbaImage)> = vec![];
