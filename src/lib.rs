@@ -13,7 +13,6 @@ use self::core::scene::Scene;
 pub fn render_child(child: &Childarea, scene: &Scene, sample: u32) -> (u32, RgbaImage) {
     let (w, h) = (child.w, child.h);
 
-    println!("{}", child.start);
     let mut img = RgbaImage::new(w, h);
     for y in child.start..h + child.start {
         for x in 0..w {

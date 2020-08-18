@@ -15,3 +15,19 @@ pub struct HitRecord {
     pub p: Point3<f64>,
     pub n: Vector3<f64>,
 }
+
+pub fn random_in_unit_shpere() -> Vector3<f64> {
+    let mut p;
+    loop {
+        p =
+            2.0 * Vector3::new(
+                rand::random::<f64>(),
+                rand::random::<f64>(),
+                rand::random::<f64>(),
+            ) - Vector3::new(1.0, 1.0, 1.0);
+        if p.norm_squared() < 1.0 {
+            break;
+        }
+    }
+    p
+}

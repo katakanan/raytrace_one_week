@@ -1,5 +1,6 @@
 use na::{Point3, Vector3};
 
+use super::basic::random_in_unit_shpere;
 use super::camera::Camera;
 use super::color::Color;
 use super::ray::Ray;
@@ -55,10 +56,11 @@ impl Scene {
     }
 
     pub fn color(&self, r: &Ray) -> Color {
-        match self.shapes.hit(&r, 0.0000, std::f64::MAX) {
+        match self.shapes.hit(&r, 0.001, std::f64::MAX) {
             Some(hr) => {
-                let c = (hr.n + Vector3::new(1.0, 1.0, 1.0)) * 0.5;
-                Color::new(c.x, c.y, c.z)
+                let target = hr.p + hr.n + random_in_unit_shpere();
+                let r = Ray::new(hr.p, target - hr.p);
+                self.color(&r) * 0.5
             }
             None => {
                 let unit_direction = r.dir / r.dir.norm();
