@@ -46,10 +46,13 @@ impl Scene {
 
     pub fn color(&self, r: &Ray) -> Color {
         match self.shapes.hit(&r, 0.0, 0.0) {
-            Some(_) => Color::new(1.0, 0.0, 0.0),
+            Some(hr) => {
+                let c = (hr.n + Vector3::new(1.0, 1.0, 1.0)) * 0.5;
+                Color::new(c.x, c.y, c.z)
+            }
             None => {
                 let unit_direction = r.dir / r.dir.norm();
-                let t = 0.5 * (-unit_direction.y + 1.0);
+                let t = 0.5 * (unit_direction.y + 1.0);
                 Color::new(1.0, 1.0, 1.0) * (1.0 - t) + Color::new(0.5, 0.7, 1.0) * t
             }
         }

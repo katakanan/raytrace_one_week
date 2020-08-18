@@ -17,7 +17,7 @@ pub fn render_child(child: &Childarea, scene: &Scene) -> (u32, RgbaImage) {
     for y in child.start..h + child.start {
         for x in 0..w {
             let u = (x as f64) / (w as f64);
-            let v = ((child.par_h - y - 1) as f64) / (child.par_h as f64);
+            let v = (y as f64) / (child.par_h as f64);
 
             let ray = scene.get_ray(u, v);
             let col = scene.color(&ray);
