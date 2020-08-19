@@ -1,13 +1,15 @@
 use na::Point3;
+use std::sync::Arc;
 
 use super::basic::HitRecord;
 use super::ray::Ray;
-use super::shape_trait::HIT;
+use super::shape_trait::{Material, HIT};
 
 #[derive(Debug, Clone)]
 pub struct Sphere {
     pub center: Point3<f64>,
     pub radius: f64,
+    pub mat: Arc<dyn Material>,
 }
 
 impl HIT for Sphere {
@@ -26,6 +28,7 @@ impl HIT for Sphere {
                     t: tmp,
                     p: p,
                     n: (p - self.center).normalize(),
+                    mat: self.mat.clone(),
                 });
             }
         }

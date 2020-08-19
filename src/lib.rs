@@ -22,10 +22,10 @@ pub fn render_child(child: &Childarea, scene: &Scene, sample: u32) -> (u32, Rgba
                 let v = (y as f64 + rand::random::<f64>()) / (child.par_h as f64);
 
                 let ray = scene.get_ray(u, v);
-                c = c + scene.color(&ray);
+                c = c + scene.color(&ray, 0);
             }
             c = c / (sample as f64);
-            img.put_pixel(x, y - child.start, c.to_rgba(1.0))
+            img.put_pixel(x, y - child.start, c.to_rgba(0.7))
         }
     }
     (child.start, img)

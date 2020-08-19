@@ -1,4 +1,8 @@
 use na::{Point3, Vector3};
+use std::sync::Arc;
+
+use super::ray::Ray;
+use super::shape_trait::Material;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Childarea {
@@ -14,6 +18,13 @@ pub struct HitRecord {
     pub t: f64,
     pub p: Point3<f64>,
     pub n: Vector3<f64>,
+    pub mat: Arc<dyn Material>,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct ScatterRecord {
+    pub r: Ray,
+    pub attenuation: Vector3<f64>,
 }
 
 pub fn random_in_unit_shpere() -> Vector3<f64> {
@@ -30,4 +41,8 @@ pub fn random_in_unit_shpere() -> Vector3<f64> {
         }
     }
     p
+}
+
+pub fn reflect(v: &Vector3<f64>, n: &Vector3<f64>) -> Vector3<f64> {
+    v - 2.0 * v.dot(&n) * n
 }
