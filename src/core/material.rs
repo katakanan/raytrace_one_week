@@ -1,6 +1,6 @@
 use na::Vector3;
 
-use super::basic::{random_in_unit_shpere, reflect, HitRecord, ScatterRecord};
+use super::basic::{random_in_unit_shpere, reflect, refract, HitRecord, ScatterRecord};
 use super::ray::Ray;
 use super::shape_trait::Material;
 
@@ -38,5 +38,35 @@ impl Material for Metal {
         } else {
             None
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Dielectric {
+    pub ref_idx: f64,
+}
+
+impl Material for Dielectric {
+    fn scatter(&self, ray: &Ray, hit: &HitRecord) -> Option<ScatterRecord> {
+        let attenuation = Vector3::new(1.0, 1.0, 1.0);
+        let (outward_normal, ni_over_nt) = if ray.dir.dot(&hit.n) > 0.0 {
+            (-hit.n, self.ref_idx)
+        } else {
+            (hit.n, 1.0 / self.ref_idx)
+        };
+        if let Some(refracted) = refract(&ray.dir, &outward_normal, ni_over_nt) {
+            let scattered = Ray::new(hit.p, refracted);
+
+            return Some(ScatterRecord {
+                r: scattered,
+                attenuation: attenuation,
+            });
+        }
+        let reflected = reflect(&ray.dir, &hit.n);
+        let scattered = Ray::new(hit.p, reflected);
+        return Some(ScatterRecord {
+            r: scattered,
+            attenuation: attenuation,
+        });
     }
 }

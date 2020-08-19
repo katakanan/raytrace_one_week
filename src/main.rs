@@ -9,7 +9,6 @@ fn main() {
     let h = 100;
     let thread = 4;
     let sample = 100;
-
     let _ = renderer::render(w, h, thread, sample)
         .save_with_format(std::path::Path::new("test.png"), ImageFormat::Png)
         .unwrap();

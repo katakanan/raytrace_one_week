@@ -17,11 +17,23 @@ impl HIT for Sphere {
         let oc = r.origin - self.center;
         let a = r.dir.dot(&r.dir);
         let b = 2.0 * r.dir.dot(&oc);
-        let c = oc.dot(&oc) - self.radius.powf(2.0);
+        let c = oc.dot(&oc) - self.radius.powi(2);
         let d = b * b - 4.0 * a * c;
 
         if d > 0.0 {
-            let tmp = (-b - d.sqrt()) / (2.0 * a);
+            let sqrt_discriminant = d.sqrt();
+            let tmp = (-b - sqrt_discriminant) / (2.0 * a);
+            if t0 < tmp && tmp < t1 {
+                let p = r.point_at_paramete(tmp);
+                return Some(HitRecord {
+                    t: tmp,
+                    p: p,
+                    n: (p - self.center).normalize(),
+                    mat: self.mat.clone(),
+                });
+            }
+
+            let tmp = (-b + sqrt_discriminant) / (2.0 * a);
             if t0 < tmp && tmp < t1 {
                 let p = r.point_at_paramete(tmp);
                 return Some(HitRecord {

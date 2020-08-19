@@ -5,7 +5,7 @@ use na::{Point3, Vector3};
 // use super::basic::random_in_unit_shpere;
 use super::camera::Camera;
 use super::color::Color;
-use super::material::{Lambertian, Metal};
+use super::material::{Dielectric, Lambertian, Metal};
 use super::ray::Ray;
 use super::screen::Screen;
 use super::shape_trait::HIT;
@@ -49,7 +49,7 @@ impl Scene {
             center: Point3::new(0.0, 0.0, -1.0),
             radius: 0.5,
             mat: Arc::new(Lambertian {
-                albedo: Vector3::new(0.8, 0.3, 0.3),
+                albedo: Vector3::new(0.1, 0.2, 0.5),
             }),
         };
 
@@ -65,10 +65,7 @@ impl Scene {
         let sphere3 = Sphere {
             center: Point3::new(-1.0, 0.0, -1.0),
             radius: 0.5,
-            mat: Arc::new(Metal {
-                fuzz: 0.2,
-                albedo: Vector3::new(0.8, 0.8, 0.8),
-            }),
+            mat: Arc::new(Dielectric { ref_idx: 1.5 }),
         };
 
         let mut shapes = ShapeList { v: vec![] };
@@ -85,22 +82,18 @@ impl Scene {
     }
 
     pub fn color(&self, r: &Ray, depth: u32) -> Color {
-        match self.shapes.hit(&r, 0.001, std::f64::MAX) {
-            Some(hr) => {
-                // let target = hr.p + hr.n + random_in_unit_shpere();
-                // let r = Ray::new(hr.p, target - hr.p);
-                // self.color(&r) * 0.5
-                match (hr.mat.scatter(&r, &hr), depth < 50) {
-                    (Some(sr), true) => {
-                        let ctmp = self.color(&(sr.r), depth + 1);
-                        let r = ctmp.r * sr.attenuation.x;
-                        let g = ctmp.g * sr.attenuation.y;
-                        let b = ctmp.b * sr.attenuation.z;
-                        Color::new(r, g, b)
-                    }
-                    (_, _) => Color::new(0.0, 0.0, 0.0),
+        match self.shapes.hit(r, 0.001, std::f64::MAX) {
+            Some(hr) => match (hr.mat.scatter(&r, &hr), depth < 50) {
+                (Some(sr), true) => {
+                    let ctmp = self.color(&(sr.r), depth + 1);
+                    let r = ctmp.r * sr.attenuation.x;
+                    let g = ctmp.g * sr.attenuation.y;
+                    let b = ctmp.b * sr.attenuation.z;
+
+                    Color::new(r, g, b)
                 }
-            }
+                (_, _) => Color::new(0.0, 0.0, 0.0),
+            },
             None => {
                 let unit_direction = r.dir / r.dir.norm();
                 let t = 0.5 * (unit_direction.y + 1.0);
