@@ -20,14 +20,34 @@ pub struct Scene {
 }
 
 impl Scene {
-    pub fn new(w: u32, h: u32) -> Scene {
-        let lower_left_corner = Point3::new(-2.0, -1.0, -1.0);
-        let horizontal = Vector3::new(4.0, 0.0, 0.0);
-        let vertical = Vector3::new(0.0, 2.0, 0.0);
+    pub fn new(
+        nw: u32,
+        nh: u32,
+        lookfrom: Point3<f64>,
+        lookat: Point3<f64>,
+        vup: Vector3<f64>,
+        fov: f64,
+        aspect: f64,
+    ) -> Scene {
+        let theta = fov * std::f64::consts::PI / 180.0;
+        let half_height = (theta / 2.0).tan();
+        let half_width = aspect * half_height;
+
+        let origin = lookfrom;
+
+        let w = (lookfrom - lookat).normalize();
+        let utmp = vup.cross(&w);
+        let u = Vector3::new(utmp.x, utmp.y, utmp.z).normalize();
+        let vtmp = w.cross(&u);
+        let v = Vector3::new(vtmp.x, vtmp.y, vtmp.z).normalize();
+
+        let lower_left_corner = origin - half_width * u - half_height * v - w;
+        let horizontal = 2.0 * half_width * u;
+        let vertical = 2.0 * half_height * v;
 
         let screen = Screen {
-            w,
-            h,
+            w: nw,
+            h: nh,
             lower_left_corner,
             horizontal,
             vertical,
@@ -37,49 +57,36 @@ impl Scene {
             pos: Point3::origin(),
         };
 
-        let floor = Sphere {
-            center: Point3::new(0.0, -100.5, -1.0),
-            radius: 100.0,
-            mat: Arc::new(Lambertian {
-                albedo: Vector3::new(0.8, 0.8, 0.0),
-            }),
-        };
+        // let floor = Sphere {
+        //     center: Point3::new(0.0, -100.5, -1.0),
+        //     radius: 100.0,
+        //     mat: Arc::new(Lambertian {
+        //         albedo: Vector3::new(0.8, 0.8, 0.0),
+        //     }),
+        // };
+
+        let R = (std::f64::consts::PI / 4.0).cos();
 
         let sphere1 = Sphere {
-            center: Point3::new(0.0, 0.0, -1.0),
-            radius: 0.5,
+            center: Point3::new(-R, 0.0, -1.0),
+            radius: R,
             mat: Arc::new(Lambertian {
-                albedo: Vector3::new(0.1, 0.2, 0.5),
+                albedo: Vector3::new(0.0, 0.0, 1.0),
             }),
         };
 
         let sphere2 = Sphere {
-            center: Point3::new(1.0, 0.0, -1.0),
-            radius: 0.5,
-            mat: Arc::new(Metal {
-                fuzz: 0.2,
-                albedo: Vector3::new(0.8, 0.6, 0.2),
+            center: Point3::new(R, 0.0, -1.0),
+            radius: R,
+            mat: Arc::new(Lambertian {
+                albedo: Vector3::new(1.0, 0.0, 0.0),
             }),
         };
 
-        let sphere3 = Sphere {
-            center: Point3::new(-1.0, 0.0, -1.0),
-            radius: 0.5,
-            mat: Arc::new(Dielectric { ref_idx: 1.5 }),
-        };
-
-        let sphere4 = Sphere {
-            center: Point3::new(-1.0, 0.0, -1.0),
-            radius: -0.45,
-            mat: Arc::new(Dielectric { ref_idx: 1.5 }),
-        };
-
         let mut shapes = ShapeList { v: vec![] };
-        shapes.v.push(floor);
+        // shapes.v.push(floor);
         shapes.v.push(sphere1);
         shapes.v.push(sphere2);
-        shapes.v.push(sphere3);
-        shapes.v.push(sphere4);
 
         Scene {
             screen,
