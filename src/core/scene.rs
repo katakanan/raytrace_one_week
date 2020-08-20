@@ -53,40 +53,51 @@ impl Scene {
             vertical,
         };
 
-        let camera = Camera {
-            pos: Point3::origin(),
+        let camera = Camera { pos: origin };
+
+        let floor = Sphere {
+            center: Point3::new(0.0, -100.5, -1.0),
+            radius: 100.0,
+            mat: Arc::new(Lambertian {
+                albedo: Vector3::new(0.8, 0.8, 0.0),
+            }),
         };
 
-        // let floor = Sphere {
-        //     center: Point3::new(0.0, -100.5, -1.0),
-        //     radius: 100.0,
-        //     mat: Arc::new(Lambertian {
-        //         albedo: Vector3::new(0.8, 0.8, 0.0),
-        //     }),
-        // };
-
-        let R = (std::f64::consts::PI / 4.0).cos();
-
         let sphere1 = Sphere {
-            center: Point3::new(-R, 0.0, -1.0),
-            radius: R,
+            center: Point3::new(0.0, 0.0, -1.0),
+            radius: 0.5,
             mat: Arc::new(Lambertian {
-                albedo: Vector3::new(0.0, 0.0, 1.0),
+                albedo: Vector3::new(0.1, 0.2, 0.5),
             }),
         };
 
         let sphere2 = Sphere {
-            center: Point3::new(R, 0.0, -1.0),
-            radius: R,
-            mat: Arc::new(Lambertian {
-                albedo: Vector3::new(1.0, 0.0, 0.0),
+            center: Point3::new(1.0, 0.0, -1.0),
+            radius: 0.5,
+            mat: Arc::new(Metal {
+                fuzz: 0.0,
+                albedo: Vector3::new(0.7, 0.6, 0.5),
             }),
         };
 
+        let sphere3 = Sphere {
+            center: Point3::new(-1.0, 0.0, -1.0),
+            radius: 0.5,
+            mat: Arc::new(Dielectric { ref_idx: 1.5 }),
+        };
+
+        let sphere4 = Sphere {
+            center: Point3::new(-1.0, 0.0, -1.0),
+            radius: -0.45,
+            mat: Arc::new(Dielectric { ref_idx: 1.5 }),
+        };
+
         let mut shapes = ShapeList { v: vec![] };
-        // shapes.v.push(floor);
+        shapes.v.push(floor);
         shapes.v.push(sphere1);
         shapes.v.push(sphere2);
+        shapes.v.push(sphere3);
+        shapes.v.push(sphere4);
 
         Scene {
             screen,

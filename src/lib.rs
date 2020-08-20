@@ -55,10 +55,10 @@ pub fn render(w: u32, h: u32, thread: u32, sample: u32) -> RgbaImage {
     let scene = Arc::new(Scene::new(
         w,
         h,
-        Point3::new(0.0, 0.0, 0.0),
+        Point3::new(-2.0, 2.0, 1.0),
         Point3::new(0.0, 0.0, -1.0),
         Vector3::new(0.0, 1.0, 0.0),
-        90.0,
+        20.0,
         (w as f64) / (h as f64),
     ));
     let mut children = vec![];
