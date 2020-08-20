@@ -68,11 +68,18 @@ impl Scene {
             mat: Arc::new(Dielectric { ref_idx: 1.5 }),
         };
 
+        let sphere4 = Sphere {
+            center: Point3::new(-1.0, 0.0, -1.0),
+            radius: -0.45,
+            mat: Arc::new(Dielectric { ref_idx: 1.5 }),
+        };
+
         let mut shapes = ShapeList { v: vec![] };
         shapes.v.push(floor);
         shapes.v.push(sphere1);
         shapes.v.push(sphere2);
         shapes.v.push(sphere3);
+        shapes.v.push(sphere4);
 
         Scene {
             screen,
