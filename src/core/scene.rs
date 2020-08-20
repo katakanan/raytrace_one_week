@@ -3,6 +3,7 @@ use std::sync::Arc;
 use na::{Point3, Vector3};
 
 // use super::basic::random_in_unit_shpere;
+use super::basic::random_in_unit_disk;
 use super::camera::Camera;
 use super::color::Color;
 use super::material::{Dielectric, Lambertian, Metal};
@@ -28,6 +29,8 @@ impl Scene {
         vup: Vector3<f64>,
         fov: f64,
         aspect: f64,
+        aperture: f64,
+        focus_dist: f64,
     ) -> Scene {
         let theta = fov * std::f64::consts::PI / 180.0;
         let half_height = (theta / 2.0).tan();
@@ -41,9 +44,10 @@ impl Scene {
         let vtmp = w.cross(&u);
         let v = Vector3::new(vtmp.x, vtmp.y, vtmp.z).normalize();
 
-        let lower_left_corner = origin - half_width * u - half_height * v - w;
-        let horizontal = 2.0 * half_width * u;
-        let vertical = 2.0 * half_height * v;
+        let lower_left_corner =
+            origin - half_width * focus_dist * u - half_height * focus_dist * v - focus_dist * w;
+        let horizontal = 2.0 * half_width * focus_dist * u;
+        let vertical = 2.0 * half_height * focus_dist * v;
 
         let screen = Screen {
             w: nw,
@@ -53,7 +57,11 @@ impl Scene {
             vertical,
         };
 
-        let camera = Camera { pos: origin };
+        let lens_radius = aperture / 2.0;
+        let camera = Camera {
+            pos: origin,
+            lens_radius,
+        };
 
         let floor = Sphere {
             center: Point3::new(0.0, -100.5, -1.0),
@@ -75,8 +83,8 @@ impl Scene {
             center: Point3::new(1.0, 0.0, -1.0),
             radius: 0.5,
             mat: Arc::new(Metal {
-                fuzz: 0.0,
-                albedo: Vector3::new(0.7, 0.6, 0.5),
+                fuzz: 0.3,
+                albedo: Vector3::new(0.8, 0.6, 0.2),
             }),
         };
 
@@ -128,9 +136,11 @@ impl Scene {
     }
 
     pub fn get_ray(&self, u: f64, v: f64) -> Ray {
-        let rdir = self.screen.lower_left_corner - self.camera.pos
+        let rd = self.camera.lens_radius * random_in_unit_disk();
+        let offset = Vector3::new(u * rd.x, v * rd.y, 0.0);
+        let rdir = self.screen.lower_left_corner - self.camera.pos - offset
             + (self.screen.horizontal * u + self.screen.vertical * v);
 
-        Ray::new(self.camera.pos, rdir)
+        Ray::new(self.camera.pos + offset, rdir)
     }
 }

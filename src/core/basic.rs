@@ -63,3 +63,14 @@ pub fn schlick(cosine: f64, ref_idx: f64) -> f64 {
     let r0 = ((1.0 - ref_idx) / (1.0 + ref_idx)).powi(2);
     r0 + (1.0 - r0) * (1.0 - cosine).powi(5)
 }
+
+pub fn random_in_unit_disk() -> Vector3<f64> {
+    let mut p: Vector3<f64>;
+    loop {
+        p = 2.0 * Vector3::new(rand::random::<f64>(), rand::random::<f64>(), 0.0)
+            - Vector3::new(1.0, 1.0, 0.0);
+        if p.dot(&p) <= 1.0 {
+            return p;
+        }
+    }
+}

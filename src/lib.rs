@@ -51,15 +51,22 @@ pub fn render(w: u32, h: u32, thread: u32, sample: u32) -> RgbaImage {
             start: t * ch,
         });
     }
+    let lookfrom = Point3::new(3.0, 3.0, 2.0);
+    let lookat = Point3::new(0.0, 0.0, -1.0);
+    let vup = Vector3::new(0.0, 1.0, 0.0);
+    let dist_to_focus = (lookfrom - lookat).norm();
+    let aperture = 2.0;
 
     let scene = Arc::new(Scene::new(
         w,
         h,
-        Point3::new(-2.0, 2.0, 1.0),
-        Point3::new(0.0, 0.0, -1.0),
-        Vector3::new(0.0, 1.0, 0.0),
+        lookfrom,
+        lookat,
+        vup,
         20.0,
         (w as f64) / (h as f64),
+        aperture,
+        dist_to_focus,
     ));
     let mut children = vec![];
 
