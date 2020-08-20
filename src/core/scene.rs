@@ -9,7 +9,7 @@ use super::color::Color;
 use super::material::{Dielectric, Lambertian, Metal};
 use super::ray::Ray;
 use super::screen::Screen;
-use super::shape_trait::HIT;
+use super::shape_trait::{Material, HIT};
 use super::shapelist::ShapeList;
 use super::sphere::Sphere;
 
@@ -62,42 +62,35 @@ impl Scene {
             pos: origin,
             lens_radius,
         };
-
         let floor = Sphere {
-            center: Point3::new(0.0, -100.5, -1.0),
-            radius: 100.0,
+            center: Point3::new(0.0, -1000.0, 0.0),
+            radius: 1000.0,
             mat: Arc::new(Lambertian {
-                albedo: Vector3::new(0.8, 0.8, 0.0),
+                albedo: Vector3::new(0.5, 0.5, 0.5),
             }),
         };
 
         let sphere1 = Sphere {
-            center: Point3::new(0.0, 0.0, -1.0),
-            radius: 0.5,
-            mat: Arc::new(Lambertian {
-                albedo: Vector3::new(0.1, 0.2, 0.5),
-            }),
+            center: Point3::new(0.0, 1.0, 0.0),
+            radius: 1.0,
+            mat: Arc::new(Dielectric { ref_idx: 1.5 }),
         };
 
         let sphere2 = Sphere {
-            center: Point3::new(1.0, 0.0, -1.0),
-            radius: 0.5,
-            mat: Arc::new(Metal {
-                fuzz: 0.3,
-                albedo: Vector3::new(0.8, 0.6, 0.2),
+            center: Point3::new(-4.0, 1.0, 0.0),
+            radius: 1.0,
+            mat: Arc::new(Lambertian {
+                albedo: Vector3::new(0.4, 0.2, 0.1),
             }),
         };
 
         let sphere3 = Sphere {
-            center: Point3::new(-1.0, 0.0, -1.0),
-            radius: 0.5,
-            mat: Arc::new(Dielectric { ref_idx: 1.5 }),
-        };
-
-        let sphere4 = Sphere {
-            center: Point3::new(-1.0, 0.0, -1.0),
-            radius: -0.45,
-            mat: Arc::new(Dielectric { ref_idx: 1.5 }),
+            center: Point3::new(4.0, 1.0, 0.0),
+            radius: 1.0,
+            mat: Arc::new(Metal {
+                fuzz: 0.0,
+                albedo: Vector3::new(0.7, 0.6, 0.5),
+            }),
         };
 
         let mut shapes = ShapeList { v: vec![] };
@@ -105,7 +98,48 @@ impl Scene {
         shapes.v.push(sphere1);
         shapes.v.push(sphere2);
         shapes.v.push(sphere3);
-        shapes.v.push(sphere4);
+
+        let hoge = 10;
+        for a in -hoge..hoge {
+            for b in -hoge..hoge {
+                let choose_mat = rand::random::<f64>();
+                let center = Point3::new(
+                    (a as f64) + 0.9 * rand::random::<f64>(),
+                    0.2,
+                    (b as f64) + 0.9 * rand::random::<f64>(),
+                );
+                if (center - Point3::new(4.0, 0.2, 0.0)).norm() > 0.9 {
+                    let mat: Arc<dyn Material> = if choose_mat < 0.8 {
+                        Arc::new(Lambertian {
+                            albedo: Vector3::new(
+                                rand::random::<f64>() * rand::random::<f64>(),
+                                rand::random::<f64>() * rand::random::<f64>(),
+                                rand::random::<f64>() * rand::random::<f64>(),
+                            ),
+                        })
+                    } else if choose_mat < 0.95 {
+                        Arc::new(Metal {
+                            fuzz: 0.5 * (1.0 + rand::random::<f64>()),
+                            albedo: Vector3::new(
+                                0.5 * (1.0 + rand::random::<f64>()),
+                                0.5 * (1.0 + rand::random::<f64>()),
+                                0.5 * (1.0 + rand::random::<f64>()),
+                            ),
+                        })
+                    } else {
+                        Arc::new(Dielectric { ref_idx: 1.5 })
+                    };
+
+                    let sphere = Sphere {
+                        center: center,
+                        radius: 0.2,
+                        mat: mat,
+                    };
+
+                    shapes.v.push(sphere);
+                }
+            }
+        }
 
         Scene {
             screen,

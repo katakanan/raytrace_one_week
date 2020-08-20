@@ -27,6 +27,19 @@
 			],
 			"group": "build",
 			"label": "Rust: cargo run - ray02"
-		}
+		},
+		{
+			"type": "shell",
+			"problemMatcher": [
+				"$rustc"
+			],
+			"command": "cargo",
+			"args": [
+				"build",
+				"--release",
+			],
+			"group": "build",
+			"label": "Rust: cargo release build - ray01"
+		},
 	]
 }

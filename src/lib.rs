@@ -51,11 +51,11 @@ pub fn render(w: u32, h: u32, thread: u32, sample: u32) -> RgbaImage {
             start: t * ch,
         });
     }
-    let lookfrom = Point3::new(3.0, 3.0, 2.0);
-    let lookat = Point3::new(0.0, 0.0, -1.0);
+    let lookfrom = Point3::new(13.0, 2.0, 3.0);
+    let lookat = Point3::new(0.0, 0.0, 0.0);
     let vup = Vector3::new(0.0, 1.0, 0.0);
     let dist_to_focus = (lookfrom - lookat).norm();
-    let aperture = 2.0;
+    let aperture = 0.2;
 
     let scene = Arc::new(Scene::new(
         w,
